@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>DG Deployment Admin</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+background:#f1f5f9;
+}
+
+header{
+background:#1e3a8a;
+color:#fff;
+padding:16px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:#fff;
+border-radius:16px;
+padding:16px;
+margin-bottom:16px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.hidden{
+display:none;
+}
+
+input,
+select,
+textarea{
+
+width:100%;
+padding:12px;
+margin-top:8px;
+margin-bottom:12px;
+border:1px solid #ccc;
+border-radius:10px;
+font-size:15px;
+
+}
+
+button{
+
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+
+}
+
+.btn-primary{
+background:#2563eb;
+color:#fff;
+}
+
+.btn-success{
+background:#16a34a;
+color:#fff;
+}
+
+.btn-danger{
+background:#dc2626;
+color:#fff;
+}
+
+.btn-warning{
+background:#ea580c;
+color:#fff;
+}
+
+label{
+font-weight:600;
+display:block;
+margin-top:8px;
+}
+
+.dashboard{
+
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+margin-bottom:15px;
+
+}
+
+.stat{
+
+background:#fff;
+border-radius:15px;
+padding:15px;
+text-align:center;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.stat h2{
+font-size:30px;
+margin-bottom:8px;
+color:#2563eb;
+}
+
+.stat span{
+font-size:14px;
+font-weight:bold;
+}
+
+.wellRow{
+
+display:flex;
+gap:8px;
+margin-bottom:8px;
+
+}
+
+.wellRow input{
+
+flex:1;
+
+}
+
+.statusCard{
+
+background:white;
+border-radius:16px;
+padding:20px;
+margin-bottom:18px;
+font-size:14px;
+box-shadow:0 6px 18px rgba(0,0,0,.08);
+border-left:6px solid #2563eb;
+
+}
+
+.pending{
+background:#fff7ed;
+border-left:6px solid orange;
+}
+
+.assigned{
+background:#dcfce7;
+border-left:6px solid green;
+}
+
+.running{
+background:#dbeafe;
+border-left:6px solid blue;
+}
+
+.completed{
+background:#f3f4f6;
+border-left:6px solid gray;
+}
+
+.rejected{
+background:#fee2e2;
+border-left:6px solid red;
+}
+
+#loginPage{
+
+max-width:380px;
+margin:60px auto;
+
+}
+/* ==========================
+MOBILE HISTORY UI
+========================== */
+
+.historyCard{
+    display:none;
+}
+
+@media(max-width:768px){
+
+.dashboard{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.statusCard{
+    padding:12px;
+}
+
+/* Mobile me Card Hide */
+.mobileHistory{
+    display:none !important;
+}
+
+/* Table */
+.historyTable{
+    display:table !important;
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    margin-top:10px;
+}
+
+.historyTable th,
+.historyTable td{
+    width:33.33%;
+    padding:8px 4px;
+    border:1px solid #d6d6d6;
+    text-align:center;
+    font-size:12px;
+    word-break:break-word;
+}
+
+.historyTable th{
+    background:#1e3a8a;
+    color:#fff;
+}
+
+}
+
+@media(min-width:769px){
+
+.mobileHistory{
+    display:none;
+}
+
+.historyTable{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+.historyTable th,
+.historyTable td{
+    padding:10px;
+    border:1px solid #d6d6d6;
+    text-align:center;
+}
+
+.historyTable th{
+    background:#1e3a8a;
+    color:#fff;
+}
+
+}
+/* ===========================
+MODERN PROCESSING LOADER
+===========================*/
+
+#loadingOverlay{
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(15,23,42,.72);
+backdrop-filter:blur(5px);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999999;
+}
+
+.loaderBox{
+width:300px;
+background:#fff;
+border-radius:22px;
+padding:28px;
+text-align:center;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.spinner{
+width:70px;
+height:70px;
+margin:auto;
+border:7px solid #dbeafe;
+border-top:7px solid #2563eb;
+border-radius:50%;
+animation:spin .9s linear infinite;
+}
+
+.loaderTitle{
+margin-top:18px;
+font-size:20px;
+font-weight:700;
+color:#2563eb;
+}
+
+.loaderSub{
+margin-top:8px;
+font-size:14px;
+color:#666;
+}
+
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+⚡ DG DEPLOYMENT MANAGEMENT SYSTEM
+
+</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="card">
+
+<h2 style="text-align:center;margin-bottom:20px;">
+
+Admin Login
+
+</h2>
+
+<label>Username</label>
+
+<input
+id="username"
+placeholder="Enter Username">
+
+<label>Password</label>
+
+<input
+id="password"
+type="password"
+placeholder="Enter Password">
+
+<button
+class="btn-primary"
+onclick="login()">
+
+LOGIN
+
+</button>
+
+<div
+id="loginMsg"
+style="color:red;text-align:center;margin-top:10px;">
+</div>
+
+</div>
+
+<!-- MAIN -->
+
+<div
+id="mainPage"
+class="hidden">
+
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+
+<div>
+Welcome <b id="adminName">DG ADMIN</b>
+</div>
+
+<button
+onclick="logout()"
+style="
+width:110px;
+padding:10px;
+background:#dc2626;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;">
+Logout
+</button>
+
+</div>
+
+<!-- Dashboard -->
+
+<div class="dashboard">
+
+<div class="stat">
+
+<h2 id="totalPending">0</h2>
+
+<span>Pending</span>
+
+</div>
+
+<div class="stat">
+
+<h2 id="totalAssigned">0</h2>
+<span>Operator Assigned</span>
+</div>
+
+<div class="stat">
+
+<h2 id="totalRunning">0</h2>
+
+<span>Running</span>
+
+</div>
+
+<div class="stat">
+
+<h2 id="totalCompleted">0</h2>
+
+<span>Completed</span>
+
+</div>
+
+</div>
+
+<!-- DG FORM -->
+
+<div class="card">
+
+<h3>
+
+New DG Requirement
+
+</h3>
+
+<label>Area</label>
+<select id="area">
+    <option value="">Select Area</option>
+    <option value="Area - 1">Area - 1</option>
+    <option value="Area - 2">Area - 2</option>
+    <option value="Area - 3">Area - 3</option>
+    <option value="Area - 4">Area - 4</option>
+</select>
+
+<label>
+
+Installation
+
+</label>
+
+<select id="installation">
+
+<option value="">
+
+Select Installation
+
+</option>
+
+<option>
+
+LIMBODARA-GGS-1
+
+</option>
+
+<option>
+
+LIMBODARA-GGS-2
+
+</option>
+
+<option>
+
+GAMIJ-GGS-1
+
+</option>
+
+<option>
+
+GAMIJ-GGS-2
+
+</option>
+
+<option>
+
+GAMIJ-GGS-3
+
+</option>
+
+</select>
+
+<label>
+
+Installation Manager
+
+</label>
+
+<input
+id="manager"
+readonly>
+
+<label>
+
+Manager Mobile
+
+</label>
+
+<input
+id="managerMobile"
+readonly>
+
+<label>Manager Email</label>
+<input id="managerEmail" readonly>
+<label>
+
+Shutdown Date
+
+</label>
+
+<input
+type="date"
+id="shutdownDate">
+
+<label>
+
+Shutdown Type
+
+</label>
+
+<select id="shutdownType">
+
+<option value="">
+
+Select
+
+</option>
+
+<option>
+
+PLAN PSD
+
+</option>
+
+<option>
+
+UNPLAN PSD
+
+</option>
+
+<option>
+
+PARTIAL PLAN PSD
+
+</option>
+
+<option>
+
+PARTIAL UNPLAN PSD
+
+</option>
+
+</select>
+
+<label>
+
+Information
+
+</label>
+
+<input
+id="information"
+placeholder="Information">
+
+<label>
+
+Feeder
+
+</label>
+
+<select id="feeder">
+
+<option>
+
+Select Feeder
+
+</option>
+
+</select>
+
+<label>
+
+Contractor
+
+</label>
+
+<select id="contractor">
+
+<option value="">
+
+Select Contractor
+
+</option>
+
+<option>
+
+SHREEJI ENGINEERS
+</option>
+
+<Option>
+ABC CONTRACTOR
+</Option>
+
+</select>
+
+<h3>
+
+Well Details
+
+</h3>
+
+<div id="wellContainer">
+
+<div class="wellRow">
+
+<input
+placeholder="Well No">
+
+<input
+type="number"
+placeholder="Capacity">
+
+</div>
+
+</div>
+
+<button
+class="btn-warning">
+
++ ADD WELL
+
+</button>
+
+<button
+class="btn-success">
+
+SUBMIT DG REQUEST
+
+</button>
+
+</div>
+
+<!-- Pending -->
+
+<div class="card">
+
+<h3>
+
+Pending / Approved Requests
+
+</h3>
+
+<div id="requestList">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const WEBAPP_URL="https://script.google.com/macros/s/AKfycbzkAbliBCybsBRvQbhF5ysIk0iBBK8F8F_ndWWRtVB3hWFNseoornI75PhpZpc_93RzdQ/exec";
+ let CURRENT_USER = {
+    name: "",
+    mobile: ""
+};
+
+function formatDate(date){
+
+if(!date || date=="NA") return "-";
+
+let d=new Date(date);
+
+if(isNaN(d)) return date;
+
+return d.toLocaleString("en-IN",{
+day:"2-digit",
+month:"short",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit",
+hour12:false
+});
+
+}
+
+/* ==========================
+ADMIN LOGIN
+========================== */
+
+function login(){
+
+let user = document.getElementById("username").value.trim();
+let pass = document.getElementById("password").value.trim();
+
+fetch(
+    WEBAPP_URL +
+    "?action=login" +
+    "&username=" + encodeURIComponent(user) +
+    "&password=" + encodeURIComponent(pass)
+)
+
+.then(r => r.json())
+
+.then(res => {
+
+    if(res.success){
+
+    localStorage.setItem("dgAdminLogin","YES");
+    localStorage.setItem("dgAdminName",res.name);
+    localStorage.setItem("dgAdminMobile",res.mobile);
+
+    CURRENT_USER.name = res.name;
+CURRENT_USER.mobile = res.mobile;
+
+           document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("mainPage").classList.remove("hidden");
+
+        document.getElementById("adminName").innerHTML = res.name;
+
+        loadMain();
+
+    }else{
+
+        document.getElementById("loginMsg").innerHTML =
+        "Invalid Username or Password";
+
+    }
+
+})
+
+.catch(function(){
+
+    alert("Unable to connect.");
+
+});
+
+}
+
+/* ==========================
+INSTALLATION MASTER
+========================== */
+
+const AREA_MASTER = {
+
+  "Area - 1": {
+
+    installations: {
+
+      "KALOL-GGS-1": {
+        manager: "RITESH V DARVHEKAR",
+        mobile: "8291293605",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "STP - DHANAJ FEEDER",
+          "S.G. HIGHWAY - DANTALI FEEDER",
+          "UMIYA DHAM - KHODIYAR FEEDER",
+          "ADANI URBAN FEEDER KHORAJ",
+          "ONGC ADALAJ FEEDER - JAMIYATPURA",
+          "KALOL ROAD FEEDER DANTALI"
+        ]
+      },
+
+      "KALOL-EPS-2": {
+        manager: "ANISH KUMAR R RAVAL",
+        mobile: "9428518238",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "BORISANA FEEDER",
+          "CTF FEEDER",
+          "SATYAM FEEDER",
+          "STP FEEDER",
+          "KRISHNA NAGAR FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-3": {
+        manager: "PRAVENDRA KUMAR",
+        mobile: "9427504334",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "ONGC CHHATRAL FEEDER",
+          "SHREEJI FEEDER",
+          "ONGC PANSAR FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-4": {
+        manager: "CHANCHLESH KABRA",
+        mobile: "9427504772",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "MARKET YARD FEEDER",
+          "KRISHNA NAGAR FEEDER",
+          "VARDAYANI FEEDER",
+          "NARDIPUR P&T FEEDER",
+          "ONGC PANSAR FEEDER",
+          "MOTI ADRAJ FEEDER",
+          "PALLI FEEDER",
+          "UNAVA AG FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-5": {
+        manager: "PRAVENDRA KUMARKULDIP KHAROLIA",
+        mobile: "9427504334",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "AYOJAN NAGAR FEEDER",
+          "CHHATRAL FEEDER",
+          "ONGC BORISANA FEEDER",
+          "VASANJADA FEEDER",
+          "SATELLITE FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-6": {
+        manager: "SANJAY SINGH",
+        mobile: "7710091215",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "ONGC CHHATRAL FEEDER",
+          "BHAMARIYAPURA FEEDER",
+          "RAJPURCORE FEEDER",
+          "AMBAPURA FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-7": {
+        manager: "ASHUTOSH KANDARI",
+        mobile: "9969220070",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "MOTI ADRAJ FEEDER",
+          "KRISHNA NAGAR FEEDER",
+          "KIRTIDHAM FEEDER",
+          "ONGC FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-9": {
+        manager: "SHUBHAM SHARMA",
+        mobile: "9909048691",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "ONGC PANSAR FEEDER",
+          "NARDIPUR P&T FEEDER",
+          "MARKET YARD FEEDER"
+        ]
+      },
+
+      "KALOL-GGS-11": {
+        manager: "RITESH V DARVHEKAR",
+        mobile: "8291293605",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "DENTAL COLLAGE FEEDER",
+          "KUDASAN FEEDER",
+          "TARAPUR URBAN FEEDER",
+          "ADANI FEEDER",
+          "ONGC ADALAJ FEEDER",
+          "OGNEJ FEEDER",
+          "PREKSHA FEEDER",
+          "IOC FEEDER"
+        ]
+      },
+
+      "MOTERA-EPS": {
+        manager: "SANJAY KUMAR",
+        mobile: "9427504442",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "PEKSHABHARATI INFOCITY FFEDER",
+          "ZUNDAL AGRICULTURE FEEDER"
+        ]
+      },
+
+      "PALIYAD-GGS": {
+        manager: "CHETAN KUMAR P PATEL",
+        mobile: "9428331701",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "NARDIPUR P&T FEEDER",
+          "ONGC VEDA FEEDER",
+          "CHAMUNDA FEEDER"
+        ]
+      },
+
+      "WADU-EPS": {
+        manager: "NITIN NEHRA",
+        mobile: "9969228625",
+        email: "vinay_nochina@ongc.co.in",
+        feeders: [
+          "ONGC PANSAR FEEDER",
+          "ONGC VEDA FEEDER",
+          "UMIYA FEEDER",
+          "SRINATH FEEDER",
+          "CHAMUNDA FEEDER"
+        ]
+      }
+
+    }
+
+  },
+
+"Area - 2": {
+
+  installations: {
+
+    "NAVAGAM-GGS-1": {
+      manager: "SAJAL KUMAR SHUKLA",
+      mobile: "9969220094",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "ONGC FEEDER",
+        "PANSOLI FEEDER",
+        "AXAR FEEDER",
+        "BAREJA FEEDER",
+        "SHREEJIPURA FEEDER",
+        "MAHADEVPURA FEEDER",
+        "GAYATRI FEEDER",
+        "SUKIRTI FEEDER"
+      ]
+    },
+
+    "NAVAGAM-GGS-2": {
+      manager: "ATULKUMAR MEENA",
+      mobile: "9429199744",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "ONGC FEEDER",
+        "BAREJA FEEDER",
+        "SHREEJIPURA FEEDER",
+        "TIMBA FEEDER",
+        "KAMAL FEEDER"
+      ]
+    },
+
+    "NAVAGAM-GGS-3": {
+      manager: "JIJU RAJAN",
+      mobile: "9442500283",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "ONGC FEEDER",
+        "PANSOLI FEEDER",
+        "KANERA FEEDER",
+        "VATRAK FEEDER",
+        "KRISHNA FEEDER"
+      ]
+    },
+
+    "WASNA-EPS": {
+      manager: "ABHAYA KUMAR GUPTA",
+      mobile: "9969228688",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "VATRAK FEEDER",
+        "KRISHNA FEEDER",
+        "SAMADRA ONGC FEEDER",
+        "DEVDI FEEDER",
+        "G.P MILL FEEDER",
+        "GARATPUR FEEDER",
+        "PIYAT MANDLI FEEDER",
+        "UMIYA PURA FEEDER",
+        "ZAVER FEEDER",
+        "NDDB FEEDER"
+      ]
+    },
+
+    "NANDEJ-GGS": {
+      manager: "AVINASH KANT SHAH",
+      mobile: "7710091379",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "DEVDI FEEDER",
+        "AIR CONTROL FEEDER",
+        "G.P MILL FEEDER",
+        "ONGC FEEDER",
+        "GARATPUR FEEDER",
+        "ANMOL FEEDER",
+        "VIVEKANAND NAGAR FEEDER"
+      ]
+    },
+
+    "RAMOL-GGS": {
+      manager: "SATEESH CHAND MEENA",
+      mobile: "7574826874",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "AIR CONTROL FEEDER",
+        "G.P MILL FEEDER",
+        "SANSOLI RURAL FEEDER",
+        "ANMOL FEEDER",
+        "BHIMRAV FEEDER",
+        "HARNIYAV FEEDER",
+        "KHS FEEDER",
+        "SOJALI FEEDER",
+        "UNDREJ FEEDER",
+        "RADHEY FEEDER",
+        "VINOBABHAVE NAGAR FEEDER",
+        "BALESHWAR FEEDER",
+        "VANCH FEEDER",
+        "PANCHRATNA FEEDER",
+        "VIVEKANAND NAGAR FEEDER",
+        "TORRENT POWER FEEDER",
+        "JALARAM FEEDER",
+        "RAMDEV FEEDER"
+      ]
+    },
+
+    "RAMOL-EPS": {
+      manager: "YOGENDRA KUMAR S SHARMA",
+      mobile: "9969226355",
+      email: "PANDIT_AJIT@ongc.co.in",
+      feeders: [
+        "KABIR FEEDER",
+        "NANDAN VAN FEEDER",
+        "TORRENT POWER FEEDER"
+      ]
+    }
+
+  }
+
+},
+
+"Area - 3": {
+
+  installations: {
+
+    "SANAND-GGS-1": {
+      manager: "SAURAV SINGLA",
+      mobile: "9909048611",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "ONGC JETHALAJ FEEDER",
+        "JAI TRIPATHI FEEDER",
+        "RAMA MULTI FEEDER",
+        "ISHWARPURA FEEDER",
+        "PROSPEC FEEDER",
+        "LINCON FEEDER",
+        "RANCHHODPURA FEEDER",
+        "LABH FEEDER"
+      ]
+    },
+
+    "SANAND-GGS-2": {
+      manager: "ABHINAV BHARAT",
+      mobile: "9969221699",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "MESCOT FEEDER",
+        "ONGC KHATRAJ FEEDER",
+        "SINGHAL FEEDER",
+        "KAROLI JGY FEEDER",
+        "FULETRA FEEDER"
+      ]
+    },
+
+    "JHALORA-GGS-1,ETP & ASP": {
+      manager: "SUSHANT SINGH",
+      mobile: "9969220069",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "ONGC JHALORA FEEDER",
+        "JETPURA JGY FEEDER"
+      ]
+    },
+
+    "JHALORA-GGS-2": {
+      manager: "ALOK DWIVEDI",
+      mobile: "9969228909",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "ONGC JHALORA FEEDER"
+      ]
+    },
+
+    "VIRAJ-GGS & ASP VIRAJ": {
+      manager: "NILESH AGRAWAL",
+      mobile: "7043781628",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "JETPURA JGY FEEDER",
+        "ONGC RANGPURDA O/H FEEDER / GANESH IND. FEEDER",
+        "RANGPURDA INDUSTRIAL FEEDER",
+        "SANTRAM FEEDER",
+        "INDRAD FFEDER",
+        "AMBUJA FEEDER"
+      ]
+    },
+
+    "SOUTH-KADI-GGS & WIP": {
+      manager: "AVI JAKKULWAR",
+      mobile: "9969229055",
+      email: "Bhuriya_vakhatsinhBhai@ongc.co.in",
+      feeders: [
+        "AMBUJA FEEDER",
+        "SHEFALI FEEDER (KADI CITY)",
+        "SPINEX FEEDER",
+        "ONGC LAXMIPURA FEEDER",
+        "ALDESON FEEDER",
+        "NAGRASAN FEEDER",
+        "MALGURU FEEDER"
+      ]
+    }
+
+  }
+
+},
+
+"Area - 4": {
+
+  installations: {
+
+    "LIMBODARA-GGS-1": {
+      manager: "KULDIP KHAROLIA",
+      mobile: "8291281604",
+      email: "rathwa_shantilal@ongc.co.in",
+      feeders: [
+        "AKASH CERAMIC FEEDER",
+        "ITLA ONGC FEEDER",
+        "MANSA CITY FEEDER",
+        "MANSA CIVIL FEEDER"
+      ]
+    },
+
+    "LIMBODARA-GGS-2": {
+      manager: "SANDESH BHARDWAJ",
+      mobile: "7710091855",
+      email: "rathwa_shantilal@ongc.co.in",
+      feeders: [
+        "ITLA ONGC FEEDER",
+        "KIRTIDHAM FEEDER",
+        "LISA FEEDER",
+        "MAHAKALI FEEDER",
+        "MUBARAKPUR FEEDER",
+        "NETRA FEEDER",
+        "ROYAL FEEDER",
+        "TIRUPATI FEEDER",
+        "VARDAYINI FEEDER"
+      ]
+    },
+
+    "GAMIJ-GGS-1": {
+      manager: "SUKUMAR LAHA",
+      mobile: "9969229059",
+      email: "rathwa_shantilal@ongc.co.in",
+      feeders: [
+        "BAHIYAL ONGC FEEDER",
+        "RAM FEEDER",
+        "SOMNATH JGY FEEDER",
+        "NAYRA JGY FEEDER",
+        "VASNA RATHOD FEEDER"
+      ]
+    },
+
+    "GAMIJ-EPS-2": {
+      manager: "RAJESH BANOTH",
+      mobile: "7777973595",
+      email: "rathwa_shantilal@ongc.co.in",
+      feeders: [
+        "BADARPUR FEEDER",
+        "CHAULAJ FEEDER",
+        "GADWEL FEEDER",
+        "KASHTABHANJAN FEEDER",
+        "RAM FEEDR"
+      ]
+    },
+
+    "GAMIJ-EPS-3 & 4": {
+      manager: "DHEERENDRA SINGH",
+      mobile: "9427504416",
+      email: "rathwa_shantilal@ongc.co.in",
+      feeders: [
+        "BARMUVADA FEEDER",
+        "CHAULAJ FEEDER",
+        "FINAV FEEEDER",
+        "FUDAL MATA FEEDER",
+        "GAYATRI FEEDER",
+        "GINJAR FEEDER",
+        "HALDARWAS FEEDER",
+        "KALPSAR FEEDER",
+        "SATRUNDA FEEDER",
+        "SIHUNJ FEEDER",
+        "VANSOLI FEEDER"
+      ]
+    }
+
+  }
+}
+
+};
+
+document.getElementById("area").onchange=function(){
+
+let area=this.value;
+
+let inst=document.getElementById("installation");
+
+inst.innerHTML="<option value=''>Select Installation</option>";
+
+if(!AREA_MASTER[area]) return;
+
+Object.keys(AREA_MASTER[area].installations).forEach(function(i){
+
+inst.innerHTML+=`<option value="${i}">${i}</option>`;
+
+});
+
+};
+
+/* ==========================
+INSTALLATION CHANGE
+========================== */
+
+document.getElementById("installation").onchange=function(){
+
+let area=document.getElementById("area").value;
+
+let installation=this.value;
+
+let obj=AREA_MASTER[area].installations[installation];
+
+document.getElementById("manager").value=obj.manager;
+document.getElementById("managerMobile").value=obj.mobile;
+document.getElementById("managerEmail").value=obj.email;
+
+let feeder=document.getElementById("feeder");
+
+feeder.innerHTML="<option>Select Feeder</option>";
+
+obj.feeders.forEach(function(f){
+
+feeder.innerHTML+=`<option>${f}</option>`;
+
+});
+
+};
+/* ==========================
+ADD WELL
+========================== */
+
+function addWell(){
+
+let div=document.createElement("div");
+
+div.className="wellRow";
+
+div.innerHTML=`
+
+<input placeholder="Well No">
+
+<input type="number" placeholder="Capacity">
+
+`;
+
+document.getElementById("wellContainer").appendChild(div);
+
+}
+
+
+/* ==========================
+ADD WELL BUTTON
+========================== */
+
+document.querySelector(".btn-warning").onclick=addWell;
+/* ==========================
+SUBMIT DG REQUEST
+========================== */
+
+function submitRequest(){
+
+let installation=document.getElementById("installation").value;
+let manager=document.getElementById("manager").value;
+let mobile=document.getElementById("managerMobile").value;
+let managerEmail = document.getElementById("managerEmail").value;
+let shutdownDate=document.getElementById("shutdownDate").value;
+let shutdownType=document.getElementById("shutdownType").value;
+let information=document.getElementById("information").value.trim();
+let feeder=document.getElementById("feeder").value;
+let contractor=document.getElementById("contractor").value;
+
+/* Validation */
+
+if(!installation){
+alert("Select Installation");
+return;
+}
+
+if(!shutdownDate){
+alert("Select Shutdown Date");
+return;
+}
+
+if(!shutdownType){
+alert("Select Shutdown Type");
+return;
+}
+
+if(!feeder){
+alert("Select Feeder");
+return;
+}
+
+if(!contractor){
+alert("Select Contractor");
+return;
+}
+
+/* Well Collection */
+
+let wells=[];
+let duplicate={};
+
+let rows=document.querySelectorAll("#wellContainer .wellRow");
+
+for(let r of rows){
+
+let inputs=r.querySelectorAll("input");
+
+let well=inputs[0].value.trim();
+let cap=inputs[1].value.trim();
+
+if(well=="" || cap=="") continue;
+
+if(duplicate[well]){
+
+alert("Duplicate Well : "+well);
+
+return;
+
+}
+
+duplicate[well]=true;
+
+wells.push({
+
+well:well,
+
+cap:Number(cap)
+
+});
+
+}
+
+if(wells.length==0){
+
+alert("Please Add Minimum One Well");
+
+return;
+
+}
+
+/* Request Object */
+
+let request={
+
+installation:
+document.getElementById("area").value +
+" | " +
+installation,
+
+requestedBy:manager,
+
+mobile:mobile,
+
+email:managerEmail,
+
+shutdownDate:shutdownDate,
+
+shutdownType:shutdownType,
+
+information:information,
+
+feeder:feeder,
+
+contractor:contractor,
+adminName: CURRENT_USER.name,
+adminMobile: CURRENT_USER.mobile,
+
+wells:wells
+
+};
+
+/* Loader */
+
+let btn=document.querySelector(".btn-success");
+
+btn.disabled=true;
+
+btn.innerHTML="Submitting...";
+showLoading("Submitting DG Request...");
+
+speak("Please wait. Your DG deployment request is being submitted.");
+
+/* API */
+
+fetch(
+
+WEBAPP_URL+
+
+"?action=submitRequest&data="+
+
+encodeURIComponent(JSON.stringify(request))
+
+)
+
+.then(r=>r.json())
+
+.then(res=>{
+
+btn.disabled=false;
+
+btn.innerHTML="SUBMIT DG REQUEST";
+
+if(res.success){
+
+hideLoading();
+
+rocketExplosion();
+
+speak("Congratulations. DG deployment request submitted successfully.");
+
+showSuccess(
+    "Request ID : <b>" + res.requestId + "</b>"
+);
+
+clearForm();
+
+loadDashboard();
+
+loadHistory();
+
+}
+
+else{
+
+hideLoading();
+
+speak("Submission failed.");
+
+alert(res.message);
+
+}
+
+})
+
+.catch(err=>{
+
+hideLoading();
+
+btn.disabled=false;
+
+btn.innerHTML="SUBMIT DG REQUEST";
+
+speak("Network error. Please try again.");
+
+alert("Network Error");
+
+});
+
+}
+function showSuccess(message){
+
+    const popup = document.createElement("div");
+
+    popup.innerHTML = `
+        <div style="
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.45);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            z-index:999999;
+        ">
+            <div style="
+                background:#fff;
+                padding:25px;
+                border-radius:18px;
+                text-align:center;
+                width:320px;
+                box-shadow:0 15px 40px rgba(0,0,0,.3);
+            ">
+                <div style="font-size:55px;">✅</div>
+
+                <h2 style="color:#16a34a;margin:10px 0;">
+                    DG Request Submitted
+                </h2>
+
+                <div style="margin-bottom:20px;">
+                    ${message}
+                </div>
+
+                <button id="okBtn"
+                style="
+                    background:#16a34a;
+                    color:#fff;
+                    border:none;
+                    padding:12px 28px;
+                    border-radius:10px;
+                    cursor:pointer;
+                ">
+                    OK
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    document.getElementById("okBtn").onclick=function(){
+        popup.remove();
+    };
+
+}
+
+/* ==========================
+CLEAR FORM
+========================== */
+
+function clearForm(){
+
+document.getElementById("shutdownDate").value="";
+
+document.getElementById("shutdownType").value="";
+
+document.getElementById("information").value="";
+
+document.getElementById("feeder").selectedIndex=0;
+
+document.getElementById("contractor").selectedIndex=0;
+
+document.getElementById("wellContainer").innerHTML=
+
+`<div class="wellRow">
+
+<input placeholder="Well No">
+
+<input type="number" placeholder="Capacity">
+
+</div>`;
+
+}
+
+
+/* ==========================
+SUBMIT BUTTON
+========================== */
+
+document.querySelector(".btn-success").onclick=submitRequest;
+/* =====================================
+LOAD DASHBOARD
+===================================== */
+
+function loadDashboard(){
+
+fetch(WEBAPP_URL+"?action=dashboard&t="+Date.now())
+
+.then(r=>r.json())
+
+.then(data=>{
+
+document.getElementById("totalPending").innerHTML=data.pending||0;
+
+document.getElementById("totalAssigned").innerHTML =
+data.assigned || 0;
+
+document.getElementById("totalRunning").innerHTML=data.running||0;
+
+document.getElementById("totalCompleted").innerHTML=data.completed||0;
+
+});
+
+}
+
+
+/* =====================================
+LOAD HISTORY
+===================================== */
+
+function loadHistory() {
+
+  fetch(WEBAPP_URL + "?action=history&t=" + Date.now())
+
+    .then(r => r.json())
+
+    .then(data => {
+
+      let html = "";
+
+      if (!data.length) {
+
+        document.getElementById("requestList").innerHTML =
+          "<center>No Request Found</center>";
+
+        return;
+      }
+
+      data.reverse().forEach(function (req) {
+
+        let cls = "pending";
+
+        if (req.dgDeployStatus == "Operator Assigned")
+          cls = "assigned";
+        else if (req.dgDeployStatus == "DG Started")
+          cls = "running";
+        else if (req.dgDeployStatus == "Completed")
+          cls = "completed";
+        else if (req.dgDeployStatus == "DG CANCELLED")
+          cls = "rejected";
+
+       let rows = "";
+let rowsTable = "";
+let total = 0;
+
+        (req.wells || []).forEach(function (w, i) {
+
+          total += Number(w.cap) || 0;
+
+       rows += `
+
+<div class="historyCard">
+
+<div class="historyRow">
+<div class="historyLabel">SR. NO.</div>
+<div class="historyValue">${i+1}</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">Well</div>
+<div class="historyValue">${w.well}</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">Capacity</div>
+<div class="historyValue">${w.cap} Ton</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">DG Start</div>
+<div class="historyValue">${formatDate(w.dgStartTime)}</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">DG Stop</div>
+<div class="historyValue">${formatDate(w.dgStopTime)}</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">Total</div>
+<div class="historyValue">${w.totalTime||"-"}</div>
+</div>
+
+<div class="historyRow">
+<div class="historyLabel">Remark</div>
+<div class="historyValue">${w.remark||"-"}</div>
+</div>
+
+<button
+class="editBtn"
+style="margin-top:10px;width:100%;"
+onclick="editRequest('${req.requestId}','${w.well}')">
+Edit
+</button>
+
+</div>
+
+`;rowsTable += `
+<tr>
+    <td>${i+1}</td>
+    <td>${w.well || "-"}</td>
+    <td>${w.cap || "-"} Ton</td>
+    </tr>
+`;
+        });
+
+        html += `
+
+<div class="statusCard ${cls}">
+
+<b>Request ID :</b> ${req.requestId}<br><br>
+
+<b>Installation :</b> ${req.installation}<br>
+
+<b>Manager :</b> ${req.requestedBy}<br>
+
+<b>Mobile :</b> ${req.mobile}<br>
+
+<b>Shutdown Date :</b> ${formatDate(req.shutdownDate)}<br>
+
+<b>Shutdown Type :</b> ${req.shutdownType}<br>
+
+<b>Information :</b> ${req.information}<br>
+
+<b>Feeder :</b> ${req.feeder}<br>
+
+<b>Contractor :</b> ${req.contractor}<br><br>
+
+<b>DG Requirement</b>
+
+<div class="mobileHistory">
+
+${rows}
+
+</div>
+
+<table class="historyTable"
+style="
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+font-size:14px;
+background:#fff;
+border:1px solid #ccc;">
+
+<thead>
+<tr>
+<th>SR. NO.</th>
+<th>WELL NO.</th>
+<th>CAPACITY</th>
+</tr>
+</thead>
+
+<tbody>
+
+${rowsTable}
+
+</tbody>
+
+</table>
+
+<br>
+${req.dgDeployStatus=="Pending" ? `
+
+<button
+class="btn-danger"
+style="margin-top:10px;"
+onclick="deleteRequest('${req.requestId}')">
+🗑 Delete Complete Request
+</button>
+
+` : ``}
+
+<br><br>
+<b>Total Wells :</b> ${req.wells.length}<br>
+
+<b>Total Capacity :</b> ${total} Ton<br>
+
+<b>DG Status :</b> ${req.dgDeployStatus}
+<br><br>
+
+<br><br>
+
+</div>
+<div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+
+</div>
+`;
+
+      });
+
+      document.getElementById("requestList").innerHTML = html;
+
+    })
+
+    .catch(function () {
+
+      document.getElementById("requestList").innerHTML =
+        "<center>Error Loading History</center>";
+
+    });
+
+}
+
+
+/* =====================================
+AUTO REFRESH
+===================================== */
+
+setInterval(function(){
+
+if(document.getElementById("mainPage").classList.contains("hidden"))
+return;
+
+loadDashboard();
+
+loadHistory();
+
+},10000);
+
+
+/* =====================================
+AFTER LOGIN
+===================================== */
+
+function loadMain(){
+
+loadDashboard();
+
+loadHistory();
+
+}
+
+function triggerDeployment(requestId){
+
+fetch(WEBAPP_URL+
+"?action=sendDeploymentMail"+
+"&requestId="+encodeURIComponent(requestId))
+
+.then(r=>r.json())
+.then(res=>{
+    alert(res.message);
+});
+
+}
+
+function triggerCompletion(requestId){
+
+fetch(WEBAPP_URL+
+"?action=sendCompletionMail"+
+"&requestId="+encodeURIComponent(requestId))
+
+.then(r=>r.json())
+.then(res=>{
+    alert(res.message);
+});
+
+}
+function deleteRequest(requestId){
+
+if(!confirm("Delete Complete Request?\n\nRequest ID : " + requestId))
+return;
+showLoading("Deleting Request...");
+
+speak("Deleting request. Please wait.");
+fetch(
+WEBAPP_URL +
+"?action=deleteRequest" +
+"&requestId=" + encodeURIComponent(requestId)
+)
+
+.then(r=>r.json())
+
+.then(res=>{
+
+alert(res.message);
+
+if(res.success){
+loadDashboard();
+loadHistory();
+hideLoading();
+
+speak("Request deleted successfully.");
+}
+
+})
+
+.catch(()=>{
+alert("Delete Failed");
+hideLoading();
+
+speak("Delete failed.");
+});
+
+}
+function showLoading(text){
+
+document.querySelector(".loaderTitle").innerHTML=text;
+
+document.getElementById("loadingOverlay").style.display="flex";
+
+}
+
+function hideLoading(){
+
+document.getElementById("loadingOverlay").style.display="none";
+
+}
+
+function speak(text){
+
+if(!window.speechSynthesis) return;
+
+speechSynthesis.cancel();
+
+let msg=new SpeechSynthesisUtterance(text);
+
+msg.lang="en-IN";
+
+msg.rate=1;
+
+msg.pitch=1;
+
+speechSynthesis.speak(msg);
+
+}
+window.onload = function(){
+
+if(localStorage.getItem("dgAdminLogin")=="YES"){
+  CURRENT_USER.name =
+localStorage.getItem("dgAdminName") || "";
+
+CURRENT_USER.mobile =
+localStorage.getItem("dgAdminMobile") || "";
+
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("mainPage").classList.remove("hidden");
+
+document.getElementById("adminName").innerHTML =
+localStorage.getItem("dgAdminName") || "DG ADMIN";
+
+loadMain();
+
+}
+
+};
+
+function rocketExplosion(){
+
+    // 🚀 Rocket Trail
+    let rocket = confetti.shapeFromText({
+        text: "🚀",
+        scalar: 2
+    });
+
+    confetti({
+        particleCount: 1,
+        shapes:[rocket],
+        startVelocity:70,
+        gravity:0.35,
+        ticks:140,
+        origin:{x:0.5,y:1}
+    });
+
+    // 💥 Explosion
+    setTimeout(function(){
+
+        const duration = 1800;
+        const end = Date.now() + duration;
+
+        (function frame(){
+
+            confetti({
+                particleCount:18,
+                angle:60,
+                spread:90,
+                origin:{x:0.5,y:0.30},
+                startVelocity:55,
+                colors:[
+                    "#ff0000",
+                    "#ff6600",
+                    "#ffff00",
+                    "#00ff00",
+                    "#00ffff",
+                    "#0066ff",
+                    "#ff00ff",
+                    "#ffffff"
+                ]
+            });
+
+            confetti({
+                particleCount:18,
+                angle:120,
+                spread:90,
+                origin:{x:0.5,y:0.30},
+                startVelocity:55,
+                colors:[
+                    "#ff0000",
+                    "#ff6600",
+                    "#ffff00",
+                    "#00ff00",
+                    "#00ffff",
+                    "#0066ff",
+                    "#ff00ff",
+                    "#ffffff"
+                ]
+            });
+
+            if(Date.now() < end){
+                requestAnimationFrame(frame);
+            }
+
+        })();
+
+    },700);
+
+}
+
+function logout(){
+
+if(!confirm("Are you sure you want to logout?"))
+return;
+
+localStorage.removeItem("dgAdminLogin");
+localStorage.removeItem("dgAdminName");
+
+location.reload();
+
+}
+
+</script>
+<div id="loadingOverlay">
+
+<div class="loaderBox">
+
+<div class="spinner"></div>
+
+<div class="loaderTitle">
+Processing...
+</div>
+
+<div class="loaderSub">
+Please wait...
+</div>
+
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</body>
+
+</html>
